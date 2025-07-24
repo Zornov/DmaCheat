@@ -63,19 +63,19 @@ namespace kmbox {
 
         /**
          * @brief Emulate key press (press and release)
-         * @param key Virtual key code (VK_*)
+         * @param key Key code ( Check HidTable.h )
          */
         virtual void KeyPress(int key) { }
 
         /**
          * @brief Emulate key down event
-         * @param key Virtual key code (VK_*)
+         * @param key Key code ( Check HidTable.h )
          */
         virtual void KeyDown(int key) { }
 
         /**
          * @brief Emulate key up event
-         * @param key Virtual key code (VK_*)
+         * @param key Key code ( Check HidTable.h )
          */
         virtual void KeyUp(int key) { }
 

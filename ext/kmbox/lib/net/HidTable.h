@@ -1,5 +1,5 @@
-#ifndef __keyboard__table__
-#define __keyboard__table__
+#ifndef _keyboard_table_
+#define _keyboard_table_
 #define KEY_NONE                               0x00
 #define KEY_ERRORROLLOVER                      0x01
 #define KEY_POSTFAIL                           0x02

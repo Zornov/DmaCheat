@@ -4,6 +4,8 @@
 #include <Factory.h>
 #include <Windows.h>
 
+#include "lib/net/HidTable.h"
+
 void waitForEnter(const std::string& nextAction) {
     std::cout << "\nPress Enter to " << nextAction << "...\n";
     std::cin.get();
@@ -53,14 +55,14 @@ void testKeyboard(const std::unique_ptr<kmbox::IKmboxDriver>& driver) {
 
     // Single key
     std::cout << "Pressing 'A' key...\n";
-    driver->KeyPress(0x41);
+    driver->KeyPress(KEY_A);
     waitForEnter("continue with Shift+A combination");
 
     // Key combination
     std::cout << "Testing Shift + A combination...\n";
-    driver->KeyDown(VK_SHIFT);
-    driver->KeyPress(0x41);
-    driver->KeyUp(VK_SHIFT);
+    driver->KeyDown(KEY_LEFTSHIFT);
+    driver->KeyPress(KEY_A);
+    driver->KeyUp(KEY_LEFTSHIFT);
 
     std::cout << "\nKeyboard test completed!\n";
 }
@@ -79,15 +81,13 @@ int main() {
     }
 
     std::cout << "KmboxNet successfully initialized!\n";
-
-    // Test groups
     waitForEnter("begin tests");
 
+    // Tests
     testMouse(driver);
     testKeyboard(driver);
 
     waitForEnter("reboot device");
-
     std::cout << "Rebooting device...\n";
     driver->Reload();
 
