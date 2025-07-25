@@ -1,3 +1,4 @@
+
 #pragma once
 
 namespace kmbox {
@@ -11,13 +12,11 @@ namespace kmbox {
     public:
         virtual ~IKmboxDriver() = default;
 
-
         /**
          * @brief Initialize the device
          * @return true if initialization is successful, false otherwise
          */
         virtual bool Initialize() = 0;
-
 
         /**
          * @brief Move the cursor by pixels from the current cursor position
@@ -52,7 +51,6 @@ namespace kmbox {
          */
         virtual void ScrollWheel(int amount) { }
 
-
         /**
          * @brief Smooth cursor movement by pixels from the current cursor position
          * @param x Relative X movement from current position
@@ -63,21 +61,103 @@ namespace kmbox {
 
         /**
          * @brief Emulate key press (press and release)
-         * @param key Key code ( Check HidTable.h )
+         * @param key Key code (Check HidTable.h)
          */
         virtual void KeyPress(int key) { }
 
         /**
          * @brief Emulate key down event
-         * @param key Key code ( Check HidTable.h )
+         * @param key Key code (Check HidTable.h)
          */
         virtual void KeyDown(int key) { }
 
         /**
          * @brief Emulate key up event
-         * @param key Key code ( Check HidTable.h )
+         * @param key Key code (Check HidTable.h)
          */
         virtual void KeyUp(int key) { }
+
+        /**
+         * @brief Fill the LCD screen with a specific color
+         * @param rgb565 Color in RGB565 format
+         */
+        virtual void SetLcdColor(unsigned short rgb565) { }
+
+        /**
+         * @brief Display an image on the bottom half of the LCD screen
+         * @param buffer Image buffer (128x80 pixels)
+         */
+        virtual void DisplayPictureBottom(const unsigned char* buffer) { }
+
+        /**
+         * @brief Display an image on the full LCD screen
+         * @param buffer Image buffer (128x160 pixels)
+         */
+        virtual void DisplayPictureFull(const unsigned char* buffer) { }
+
+        /**
+         * @brief Enable/disable device monitoring
+         * @param enable true to enable monitoring
+         */
+        virtual void EnableMonitoring(bool enable) { }
+
+        /**
+         * @brief Check if the left mouse button is pressed
+         * @return true if pressed, false otherwise
+         */
+        virtual bool IsLeftButtonPressed() { return false; }
+
+        /**
+         * @brief Check if the right mouse button is pressed
+         * @return true if pressed, false otherwise
+         */
+        virtual bool IsRightButtonPressed() { return false; }
+
+        /**
+         * @brief Check if the middle mouse button is pressed
+         * @return true if pressed, false otherwise
+         */
+        virtual bool IsMiddleButtonPressed() { return false; }
+
+        /**
+         * @brief Check if side button 1 is pressed
+         * @return true if pressed, false otherwise
+         */
+        virtual bool IsSideButton1Pressed() { return false; }
+
+        /**
+         * @brief Check if side button 2 is pressed
+         * @return true if pressed, false otherwise
+         */
+        virtual bool IsSideButton2Pressed() { return false; }
+
+        /**
+         * @brief Check if a specific keyboard key is pressed
+         * @param key Key code to check
+         * @return true if pressed, false otherwise
+         */
+        virtual bool IsKeyPressed(short key) { return false; }
+
+        /**
+         * @brief Configure device network settings
+         * @param ip New IP address
+         * @param port New port number
+         */
+        virtual void ConfigureNetwork(const char* ip, unsigned short port) { }
+
+        /**
+         * @brief Configure device USB settings
+         * @param vid Vendor ID
+         * @param pid Product ID
+         */
+        virtual void ConfigureUsb(unsigned short vid, unsigned short pid) { }
+
+        /**
+         * @brief Enable/disable debug mode
+         * @param port Debug port number
+         * @param enable true to enable debug
+         */
+        virtual void EnableDebug(short port, bool enable) { }
 
         /**
          * @brief Mask left mouse button

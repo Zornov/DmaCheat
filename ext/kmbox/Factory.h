@@ -6,8 +6,8 @@
 namespace kmbox {
     class Factory {
     public:
-        static std::unique_ptr<IKmboxDriver> CreateNetDriver(const char* ip, const char* port, const char* uuid);
+        static std::unique_ptr<IKmboxDriver> Create(const char* ip, const char* port, const char* uuid);
 
-        static std::unique_ptr<IKmboxDriver> CreateBProDriver(int comPort);
+        static std::unique_ptr<IKmboxDriver> Create(int comPort);
     };
 }

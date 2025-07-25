@@ -1,26 +1,35 @@
+
 #pragma once
 #include "IKmboxDriver.h"
 #include "lib/net/KmboxNet.h"
 
 namespace kmbox {
     class KmboxNetDriver final : public IKmboxDriver {
-        char ip[24]{};
-        char port[10]{};
-        char uuid[32]{};
+        char ipAddress[24]{};
+        char portNumber[10]{};
+        char deviceUuid[32]{};
 
     public:
-        KmboxNetDriver(const char* ip, const char* port, const char* uuid) {
-            strcpy_s(this->ip, ip);
-            strcpy_s(this->port, port);
-            strcpy_s(this->uuid, uuid);
+        KmboxNetDriver(const char* ipAddr, const char* port, const char* uuid) {
+            strcpy_s(ipAddress, ipAddr);
+            strcpy_s(portNumber, port);
+            strcpy_s(deviceUuid, uuid);
         }
 
         bool Initialize() override {
-            return kmNet_init(ip, port, uuid) == 0;
+            return kmNet_init(ipAddress, portNumber, deviceUuid) == 0;
+        }
+
+        void Reload() override {
+            kmNet_reboot();
         }
 
         void Move(const int x, const int y) override {
-            kmNet_mouse_move(x, y);
+            kmNet_mouse_move(static_cast<short>(x), static_cast<short>(y));
+        }
+
+        void MoveSmooth(const int x, const int y, const int timeMs) override {
+            kmNet_mouse_move_auto(x, y, timeMs);
         }
 
         void LeftClick() override {
@@ -33,10 +42,6 @@ namespace kmbox {
             kmNet_mouse_right(0);
         }
 
-        void Reload() override {
-            kmNet_reboot();
-        }
-
         void MiddleClick() override {
             kmNet_mouse_middle(1);
             kmNet_mouse_middle(0);
@@ -44,10 +49,6 @@ namespace kmbox {
 
         void ScrollWheel(const int amount) override {
             kmNet_mouse_wheel(amount);
-        }
-
-        void MoveSmooth(const int x, const int y, const int timeMs) override {
-            kmNet_mouse_move_auto(x, y, timeMs);
         }
 
         void KeyPress(const int key) override {
@@ -61,6 +62,34 @@ namespace kmbox {
 
         void KeyUp(const int key) override {
             kmNet_keyup(key);
+        }
+
+        void EnableMonitoring(const bool enable) override {
+            kmNet_monitor(enable ? 1 : 0);
+        }
+
+        bool IsLeftButtonPressed() override {
+            return kmNet_monitor_mouse_left() != 0;
+        }
+
+        bool IsRightButtonPressed() override {
+            return kmNet_monitor_mouse_right() != 0;
+        }
+
+        bool IsMiddleButtonPressed() override {
+            return kmNet_monitor_mouse_middle() != 0;
+        }
+
+        bool IsSideButton1Pressed() override {
+            return kmNet_monitor_mouse_side1() != 0;
+        }
+
+        bool IsSideButton2Pressed() override {
+            return kmNet_monitor_mouse_side2() != 0;
+        }
+
+        bool IsKeyPressed(const short key) override {
+            return kmNet_monitor_keyboard(key) != 0;
         }
 
         void MaskLeftButton(const bool enable) override {
@@ -81,6 +110,34 @@ namespace kmbox {
 
         void UnmaskAll() override {
             kmNet_unmask_all();
+        }
+
+        void SetLcdColor(const unsigned short rgb565) override {
+            kmNet_lcd_color(rgb565);
+        }
+
+        void DisplayPictureBottom(const unsigned char* buffer) override {
+            if (buffer) {
+                kmNet_lcd_picture_bottom(const_cast<unsigned char*>(buffer));
+            }
+        }
+
+        void DisplayPictureFull(const unsigned char* buffer) override {
+            if (buffer) {
+                kmNet_lcd_picture(const_cast<unsigned char*>(buffer));
+            }
+        }
+
+        void ConfigureNetwork(const char* newIp, const unsigned short newPort) override {
+            kmNet_setconfig(const_cast<char*>(newIp), newPort);
+        }
+
+        void ConfigureUsb(const unsigned short vid, const unsigned short pid) override {
+            kmNet_setvidpid(vid, pid);
+        }
+
+        void EnableDebug(const short port, const bool enable) override {
+            kmNet_debug(port, enable ? 1 : 0);
         }
     };
 }

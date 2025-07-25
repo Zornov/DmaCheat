@@ -17,7 +17,7 @@ add_executable(DmaCheat src/main.cpp
         ext/kmbox/Factory.h
         ext/kmbox/Factory.cpp
         ext/kmbox/impl/KmboxNetDriver.h
-        ext/kmbox/impl/KmboxBproDriver.h
+        ext/kmbox/impl/KmboxBProDriver.h
 )
 
 target_include_directories(DmaCheat PUBLIC
