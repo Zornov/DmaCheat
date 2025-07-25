@@ -3,30 +3,24 @@ project(DmaCheat)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(KmboxNet STATIC
-        ext/kmbox/lib/net/KmboxNet.cpp
-        ext/kmbox/impl/KmboxNetDriver.h
-)
+add_subdirectory(ext/kmbox)
+add_subdirectory(ext/DMALibrary)
 
-target_include_directories(KmboxNet PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/ext/kmbox
-)
-
-add_executable(DmaCheat src/main.cpp
-        ext/kmbox/IKmboxDriver.h
-        ext/kmbox/Factory.h
-        ext/kmbox/Factory.cpp
-        ext/kmbox/impl/KmboxNetDriver.h
-        ext/kmbox/impl/KmboxBProDriver.h
-)
-
-target_include_directories(DmaCheat PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/ext/kmbox
-)
+add_executable(DmaCheat src/main.cpp)
 
 target_link_libraries(DmaCheat PRIVATE
-        KmboxNet
-        Ws2_32
+        KmboxLib
+        DMALib
+)
+
+add_custom_command(TARGET DmaCheat POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE_DIR:DMALib>/dbghelp.dll
+        $<TARGET_FILE_DIR:DMALib>/FTD3XX.dll
+        $<TARGET_FILE_DIR:DMALib>/leechcore.dll
+        $<TARGET_FILE_DIR:DMALib>/symsrv.dll
+        $<TARGET_FILE_DIR:DMALib>/vmm.dll
+        $<TARGET_FILE_DIR:DmaCheat>
 )
 
 set_target_properties(DmaCheat PROPERTIES

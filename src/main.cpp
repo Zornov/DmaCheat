@@ -1,25 +1,14 @@
 #include <iostream>
-#include <thread>
-#include <chrono>
-#include <Factory.h>
-
+#include <Memory/Memory.h>
 
 int main() {
-    const auto ip = "192.168.2.188";
-    const auto port = "61697";
-    const auto uuid = "Info";
-
-    std::cout << "Initializing KmboxNet...\n";
-    const auto driver = kmbox::Factory::Create(ip, port, uuid);
-
-    if (!driver->Initialize()) {
-        std::cout << "Failed to initialize KmboxNet\n";
+    if (!mem.Init("discord.exe", true, false)) {
+        std::cout << "DMA initialization error" << std::endl;
+        system("pause");
         return 1;
     }
+    std::cout << "DMA initialized successfully" << std::endl;
 
-    std::cout << "Kmbox successfully initialized!\n";
-
-    std::cout << "Press Enter to exit...";
-    std::cin.get();
+    system("pause");
     return 0;
 }
