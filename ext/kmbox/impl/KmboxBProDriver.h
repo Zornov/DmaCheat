@@ -28,21 +28,9 @@ namespace kmbox {
             comPort.write(cmd);
         }
 
-        void LeftClick() override {
+        void Click(MouseButton button) override {
             char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.click(0)\r\n");
-            comPort.write(cmd);
-        }
-
-        void RightClick() override {
-            char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.click(1)\r\n");
-            comPort.write(cmd);
-        }
-
-        void MiddleClick() override {
-            char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.click(2)\r\n");
+            sprintf_s(cmd, "km.click(%d)\r\n", static_cast<int>(std::log2(static_cast<int>(button))));
             comPort.write(cmd);
         }
 
@@ -76,49 +64,19 @@ namespace kmbox {
             comPort.write(cmd);
         }
 
-        bool IsLeftButtonPressed() override {
+        bool IsButtonPressed(const MouseButton button) override {
+            const char* cmdStr;
+            switch(button) {
+                case MouseButton::Left: cmdStr = "km.is_left()\r\n"; break;
+                case MouseButton::Right: cmdStr = "km.is_right()\r\n"; break;
+                case MouseButton::Middle: cmdStr = "km.is_middle()\r\n"; break;
+                case MouseButton::Side1: cmdStr = "km.is_side1()\r\n"; break;
+                case MouseButton::Side2: cmdStr = "km.is_side2()\r\n"; break;
+                default: return false;
+            }
+
             char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.is_left()\r\n");
-            comPort.write(cmd);
-
-            char response[32] = { 0 };
-            comPort.read(response, sizeof(response));
-            return response[0] == '1';
-        }
-
-        bool IsRightButtonPressed() override {
-            char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.is_right()\r\n");
-            comPort.write(cmd);
-
-            char response[32] = { 0 };
-            comPort.read(response, sizeof(response));
-            return response[0] == '1';
-        }
-
-        bool IsMiddleButtonPressed() override {
-            char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.is_middle()\r\n");
-            comPort.write(cmd);
-
-            char response[32] = { 0 };
-            comPort.read(response, sizeof(response));
-            return response[0] == '1';
-        }
-
-        bool IsSideButton1Pressed() override {
-            char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.is_side1()\r\n");
-            comPort.write(cmd);
-
-            char response[32] = { 0 };
-            comPort.read(response, sizeof(response));
-            return response[0] == '1';
-        }
-
-        bool IsSideButton2Pressed() override {
-            char cmd[1024] = { 0 };
-            sprintf_s(cmd, "km.is_side2()\r\n");
+            sprintf_s(cmd, "%s", cmdStr);
             comPort.write(cmd);
 
             char response[32] = { 0 };

@@ -1,5 +1,6 @@
 
 #pragma once
+#include "lib/net/HidTable.h"
 
 namespace kmbox {
     /**
@@ -10,6 +11,24 @@ namespace kmbox {
      */
     class IKmboxDriver {
     public:
+        /**
+        * @brief Mouse buttons enumeration with corresponding bit masks
+        *
+        * Each button is represented by its bit in the mouse state byte:
+        * bit 0 (0x01) - left button
+        * bit 1 (0x02) - right button
+        * bit 2 (0x04) - middle button/wheel
+        * bit 3 (0x08) - side button 1
+        * bit 4 (0x10) - side button 2
+        */
+        enum class MouseButton {
+            Left = BIT0,
+            Right = BIT1,
+            Middle = BIT2,
+            Side1 = BIT3,
+            Side2 = BIT4
+        };
+
         virtual ~IKmboxDriver() = default;
 
         /**
@@ -26,24 +45,22 @@ namespace kmbox {
         virtual void Move(int x, int y) = 0;
 
         /**
-         * @brief Emulate the left mouse button click
+         * @brief Emulates a click with the specified mouse button
+         * @param button Mouse button from MouseButton enum
          */
-        virtual void LeftClick() = 0;
+        virtual void Click(MouseButton button) = 0;
 
         /**
-         * @brief Emulate the right mouse button click
+         * @brief Checks if the specified mouse button is currently pressed
+         * @param button Mouse button from MouseButton enum
+         * @return true if button is pressed, false otherwise
          */
-        virtual void RightClick() = 0;
+        virtual bool IsButtonPressed(MouseButton button) = 0;
 
         /**
          * @brief Reboot the device
          */
         virtual void Reload() = 0;
-
-        /**
-         * @brief Emulate the middle mouse button click
-         */
-        virtual void MiddleClick() { }
 
         /**
          * @brief Emulate mouse wheel scrolling
@@ -100,36 +117,6 @@ namespace kmbox {
          * @param enable true to enable monitoring
          */
         virtual void EnableMonitoring(bool enable) { }
-
-        /**
-         * @brief Check if the left mouse button is pressed
-         * @return true if pressed, false otherwise
-         */
-        virtual bool IsLeftButtonPressed() { return false; }
-
-        /**
-         * @brief Check if the right mouse button is pressed
-         * @return true if pressed, false otherwise
-         */
-        virtual bool IsRightButtonPressed() { return false; }
-
-        /**
-         * @brief Check if the middle mouse button is pressed
-         * @return true if pressed, false otherwise
-         */
-        virtual bool IsMiddleButtonPressed() { return false; }
-
-        /**
-         * @brief Check if side button 1 is pressed
-         * @return true if pressed, false otherwise
-         */
-        virtual bool IsSideButton1Pressed() { return false; }
-
-        /**
-         * @brief Check if side button 2 is pressed
-         * @return true if pressed, false otherwise
-         */
-        virtual bool IsSideButton2Pressed() { return false; }
 
         /**
          * @brief Check if a specific keyboard key is pressed

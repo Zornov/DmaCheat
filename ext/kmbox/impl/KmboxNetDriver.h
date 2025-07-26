@@ -32,19 +32,10 @@ namespace kmbox {
             kmNet_mouse_move_auto(x, y, timeMs);
         }
 
-        void LeftClick() override {
-            kmNet_mouse_left(1);
-            kmNet_mouse_left(0);
-        }
-
-        void RightClick() override {
-            kmNet_mouse_right(1);
-            kmNet_mouse_right(0);
-        }
-
-        void MiddleClick() override {
-            kmNet_mouse_middle(1);
-            kmNet_mouse_middle(0);
+        void Click(MouseButton button) override {
+            const int buttonMask = static_cast<int>(button);
+            kmNet_mouse_all(buttonMask, 0, 0, 0);
+            kmNet_mouse_all(0, 0, 0, 0);
         }
 
         void ScrollWheel(const int amount) override {
@@ -68,24 +59,16 @@ namespace kmbox {
             kmNet_monitor(enable ? 1 : 0);
         }
 
-        bool IsLeftButtonPressed() override {
-            return kmNet_monitor_mouse_left() != 0;
-        }
 
-        bool IsRightButtonPressed() override {
-            return kmNet_monitor_mouse_right() != 0;
-        }
-
-        bool IsMiddleButtonPressed() override {
-            return kmNet_monitor_mouse_middle() != 0;
-        }
-
-        bool IsSideButton1Pressed() override {
-            return kmNet_monitor_mouse_side1() != 0;
-        }
-
-        bool IsSideButton2Pressed() override {
-            return kmNet_monitor_mouse_side2() != 0;
+        bool IsButtonPressed(const MouseButton button) override {
+            switch(button) {
+                case MouseButton::Left: return kmNet_monitor_mouse_left() != 0;
+                case MouseButton::Right: return kmNet_monitor_mouse_right() != 0;
+                case MouseButton::Middle: return kmNet_monitor_mouse_middle() != 0;
+                case MouseButton::Side1: return kmNet_monitor_mouse_side1() != 0;
+                case MouseButton::Side2: return kmNet_monitor_mouse_side2() != 0;
+                default: return false;
+            }
         }
 
         bool IsKeyPressed(const short key) override {
