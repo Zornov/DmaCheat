@@ -8,11 +8,11 @@
 
 namespace kmbox {
 
-    std::unique_ptr<IKmboxDriver> Factory::Create(const char* ip, const char* port, const char* uuid) {
-        return std::make_unique<KmboxNetDriver>(ip, port, uuid);
+    std::shared_ptr<IKmboxDriver> Factory::Create(const char* ip, const char* port, const char* uuid) {
+        return std::make_shared<KmboxNetDriver>(ip, port, uuid);
     }
 
-    std::unique_ptr<IKmboxDriver> Factory::Create(int comPort) {
-        return std::make_unique<KmboxBProDriver>(comPort);
+    std::shared_ptr<IKmboxDriver> Factory::Create(int comPort) {
+        return std::make_shared<KmboxBProDriver>(comPort);
     }
 }

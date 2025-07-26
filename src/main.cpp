@@ -4,6 +4,7 @@
 #include <thread>
 #include <chrono>
 #include <iomanip>
+#include <cmath>
 
 namespace Offsets {
     constexpr uintptr_t dwEntityList = 0x00940B08;
@@ -15,6 +16,9 @@ namespace Offsets {
     constexpr uintptr_t Velocity = 0x148;       // velocity
 }
 
+struct Vector4 {
+    float x, y, z, w;
+};
 
 struct Vector3 {
     float x, y, z;
@@ -32,6 +36,10 @@ struct Vector3 {
     }
 };
 
+struct Vector2 {
+    float x, y;
+};
+
 struct Matrix4x4 {
     float m[4][4];
 
@@ -47,6 +55,7 @@ struct Matrix4x4 {
     }
 };
 
+
 struct PlayerInfo {
     int health;
     int maxHealth;
@@ -54,12 +63,12 @@ struct PlayerInfo {
     int maxArmor;
     Vector3 position;
     Vector3 velocity;
-    Vector3 viewAngles;
 };
 
 int main() {
     std::cout << "Initializing DMA...\n";
 
+    Memory mem;
     if (!mem.Init("gmod.exe", true, false)) {
         std::cout << "DMA initialization error\n";
         std::cin.get();
@@ -105,11 +114,11 @@ int main() {
         player.position.Print(std::cout);
         std::cout << "\nVelocity: ";
         player.velocity.Print(std::cout);
+        std::cout << "\n";
 
         auto viewMatrix = mem.Read<Matrix4x4>(clientDll + Offsets::dwViewMatrix);
         std::cout << "View Matrix:\n";
         viewMatrix.Print(std::cout);
-
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
