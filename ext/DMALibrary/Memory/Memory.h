@@ -1,10 +1,8 @@
 #pragma once
-#include "../pch.h"
-#include "InputManager.h"
-#include "Registry.h"
-#include "Shellcode.h"
-#include "../nt/structs.h"
+#include <unordered_map>
 
+#include "pch.h"
+#include "InputManager.h"
 class Memory
 {
 private:
@@ -15,7 +13,7 @@ private:
 		HMODULE LEECHCORE = nullptr;
 	};
 
-	static inline LibModules modules { };
+	static inline LibModules modules{ };
 
 	struct CurrentProcessInformation
 	{
@@ -24,8 +22,8 @@ private:
 		size_t base_size = 0;
 		std::string process_name = "";
 	};
+	std::unordered_map<std::wstring, ULONG64> Modules;
 
-	static inline CurrentProcessInformation current_process { };
 
 	static inline BOOLEAN DMA_INITIALIZED = FALSE;
 	static inline BOOLEAN PROCESS_INITIALIZED = FALSE;
@@ -45,39 +43,18 @@ private:
 	*/
 	bool SetFPGA();
 
-	//shared pointer
-	std::shared_ptr<c_keys> key;
-	c_registry registry;
-	c_shellcode shellcode;
-
 	/*this->registry_ptr = std::make_shared<c_registry>(*this);
 	this->key_ptr = std::make_shared<c_keys>(*this);*/
 
 public:
+	static inline CurrentProcessInformation current_process{ };
+
 	/**
 	 * brief Constructor takes a wide string of the process.
 	 * Expects that all the libraries are in the root dir
 	 */
 	Memory();
 	~Memory();
-
-	/**
-	* @brief Gets the registry object
-	* @return registry class
-	*/
-	c_registry GetRegistry() { return registry; }
-
-	/**
-	* @brief Gets the key object
-	* @return key class
-	*/
-	c_keys* GetKeyboard() { return key.get(); }
-
-	/**
-	* @brief Gets the shellcode object
-	* @return shellcode class
-	*/
-	c_shellcode GetShellcode() { return shellcode; }
 
 	/**
 	* brief Initializes the DMA
@@ -106,8 +83,8 @@ public:
 
 	/**
 	* \brief Gets the module list of the process
-	* \param process_name the name of the process 
-	* \return all the module names of the process 
+	* \param process_name the name of the process
+	* \return all the module names of the process
 	*/
 	std::vector<std::string> GetModuleList(std::string process_name);
 
@@ -117,19 +94,15 @@ public:
 	*/
 	VMMDLL_PROCESS_INFORMATION GetProcessInformation();
 
-	/**
-	* \brief Gets the process peb
-	* \return the process peb 
-	*/
-	PEB GetProcessPeb();
 
 	/**
 	* brief Gets the base address of the process
 	* @param module_name the name of the module
 	* @return the base address of the process
 	*/
-	size_t GetBaseDaddy(std::string module_name);
+	size_t GetBaseAddress(std::string module_name);
 
+	size_t GetBaseAddressByPID(std::string module_name, int pid);
 	/**
 	* brief Gets the base size of the process
 	* @param module_name the name of the module
@@ -176,7 +149,7 @@ public:
 	/**
 	 * \brief Scans the process for the signature.
 	 * \param signature the signature example "48 ? ? ?"
-	 * \param range_start Region to start scan from 
+	 * \param range_start Region to start scan from
 	 * \param range_end Region up to where it should scan
 	 * \param PID (OPTIONAL) where to read to?
 	 * \return address of signature
@@ -184,11 +157,11 @@ public:
 	uint64_t FindSignature(const char* signature, uint64_t range_start, uint64_t range_end, int PID = 0);
 
 	/**
-	 * \brief Writes memory to the process 
+	 * \brief Writes memory to the process
 	 * \param address The address to write to
-	 * \param buffer The buffer to write
-	 * \param size The size of the buffer
-	 * \return 
+	 * \param buffer The buffer to writeze of the buffer
+	 * \return
+	 * \param size The si
 	 */
 	bool Write(uintptr_t address, void* buffer, size_t size) const;
 	bool Write(uintptr_t address, void* buffer, size_t size, int pid) const;
@@ -199,15 +172,15 @@ public:
 	 * \param value the value you'll write to the address
 	 */
 	template <typename T>
-	void Write(void* address, T value)
+	bool Write(void* address, T value)
 	{
-		Write(address, &value, sizeof(T));
+		return Write(address, &value, sizeof(T));
 	}
 
 	template <typename T>
-	void Write(uintptr_t address, T value)
+	bool Write(uintptr_t address, T value)
 	{
-		Write(address, &value, sizeof(T));
+		return Write(address, &value, sizeof(T));
 	}
 
 	/**
@@ -217,8 +190,8 @@ public:
 	* @param size The size of the buffer
 	* @return true if successful, false if not.
 	*/
-	bool Read(uintptr_t address, void* buffer, size_t size, bool cache = false) const;
-	bool Read(uintptr_t address, void* buffer, size_t size, int pid, bool cache = false) const;
+	bool Read(uintptr_t address, void* buffer, size_t size) const;
+	bool Read(uintptr_t address, void* buffer, size_t size, int pid) const;
 
 	/**
 	* brief Reads memory from the process using a template
@@ -226,18 +199,19 @@ public:
 	* @return the value read from the process
 	*/
 	template <typename T>
-	T Read(void* address, bool cache = false)
+	T Read(void* address)
 	{
 		T buffer{ };
 		memset(&buffer, 0, sizeof(T));
-		Read(reinterpret_cast<uint64_t>(address), reinterpret_cast<void*>(&buffer), sizeof(T), cache);
+		Read(reinterpret_cast<uint64_t>(address), reinterpret_cast<void*>(&buffer), sizeof(T));
+
 		return buffer;
 	}
 
 	template <typename T>
-	T Read(uint64_t address, bool cache = false)
+	T Read(uint64_t address)
 	{
-		return Read<T>(reinterpret_cast<void*>(address), cache);
+		return Read<T>(reinterpret_cast<void*>(address));
 	}
 
 	/**
@@ -247,18 +221,19 @@ public:
 	* @return the value read from the process
 	*/
 	template <typename T>
-	T Read(void* address, int pid, bool cache = false)
+	T Read(void* address, int pid)
 	{
 		T buffer{ };
 		memset(&buffer, 0, sizeof(T));
-		Read(reinterpret_cast<uint64_t>(address), reinterpret_cast<void*>(&buffer), sizeof(T), pid, cache);
+		Read(reinterpret_cast<uint64_t>(address), reinterpret_cast<void*>(&buffer), sizeof(T), pid);
+
 		return buffer;
 	}
 
 	template <typename T>
-	T Read(uint64_t address, int pid, bool cache = false)
+	T Read(uint64_t address, int pid)
 	{
-		return Read<T>(reinterpret_cast<void*>(address), pid, cache);
+		return Read<T>(reinterpret_cast<void*>(address), pid);
 	}
 
 	/**
@@ -277,27 +252,37 @@ public:
 	/**
 	 * \brief Adds a scatter read/write request to the handle
 	 * \param handle the handle
-	 * \param address the address to read/write to 
+	 * \param address the address to read/write to
 	 * \param buffer the buffer to read/write to
 	 * \param size the size of buffer
 	 */
-	void AddScatterReadRequest(VMMDLL_SCATTER_HANDLE handle, uint64_t address, void* buffer, size_t size);
+	bool AddScatterReadRequest(VMMDLL_SCATTER_HANDLE handle, uint64_t address, void* buffer, size_t size);
 	void AddScatterWriteRequest(VMMDLL_SCATTER_HANDLE handle, uint64_t address, void* buffer, size_t size);
+	template <typename T>
+	bool AddScatterWriteRequest(VMMDLL_SCATTER_HANDLE handle, uint64_t addr, T value) const
+	{
+		if (!(addr > 0x2000000 && addr < 0x7FFFFFFFFFFF))
+			return false;
+		bool ret = !VMMDLL_Scatter_PrepareWrite(handle, addr, reinterpret_cast<PBYTE>(&value), sizeof(value));
+		if (!ret)
+		{
+			LOG("failed to prepare scatter write at 0x%p\n", addr);
+		}
+		return ret;
+	}
 
 	/**
 	 * \brief Executes all prepared scatter requests, note if you created a scatter handle with a pid
 	 * you'll need to specify the pid in the execute function. so we can clear the scatters from the handle.
-	 * \param handle 
-	 * \param pid 
+	 * \param handle
+	 * \param pid
 	 */
 	void ExecuteReadScatter(VMMDLL_SCATTER_HANDLE handle, int pid = 0);
 	void ExecuteWriteScatter(VMMDLL_SCATTER_HANDLE handle, int pid = 0);
 
-	bool IsValidPointer(uint64_t Pointer);
 
 	/*the FPGA handle*/
 	VMM_HANDLE vHandle;
-	uint64_t OFF_BASE;
 };
 
 inline Memory mem;
